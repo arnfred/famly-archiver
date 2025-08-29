@@ -4,6 +4,7 @@ uv = "latest"
 
 [env]
 UV_PYTHON_PREFERENCE = "only-managed"
+PYTHONUNBUFFERED = "1"
 
 [tasks.install]
 run = "uv sync"
