@@ -2,62 +2,192 @@
 
 A tool to download and archive your Famly daycare photos and posts before account closure.
 
-## Quick Start
+This tool helps you save all your precious memories from Famly before your child's account gets closed. It downloads all photos, posts, observations, and comments into a beautiful offline HTML archive that you can keep forever.
 
-### Step 1: Capture Feed Data
+## Quick Commands (if you have mise installed)
 
-1. Open Firefox and go to `app.famly.co`
-2. Log in to your account
-3. Open Developer Tools (F12)
-4. Go to the Console tab
-5. Copy and paste the entire contents of `famly_capture.js` into the console and press Enter
-6. Start capturing: `famlyCapture.start()`
-7. Scroll through your entire feed to load all posts (scroll slowly to ensure all data loads)
-8. When done: `famlyCapture.stop()`
-9. Download the data: `famlyCapture.download()`
+If you already have mise set up, you can use these simple commands:
+- `mise download your_feed_file.json` - Download all images
+- `mise generate metadata.json` - Generate HTML archive
+- `mise archive your_feed_file.json` - Do both steps at once
 
-This will download a JSON file with all your feed data.
+## Complete Setup Guide
 
-### Step 2: Create Archive
+### Step 1: Install mise (the tool manager)
 
-1. Install Python dependencies:
+**What is mise?** Mise is a tool that helps manage different programming tools. We use it to make running our scripts easier.
+
+**How to install mise:**
+
+1. **Open your terminal/command prompt:**
+   - **On Mac:** Press `Cmd + Space`, type "Terminal", and press Enter
+   - **On Windows:** Press `Windows key + R`, type "cmd", and press Enter
+   - **On Linux:** Press `Ctrl + Alt + T`
+
+2. **Install mise by copying and pasting this command:**
    ```bash
-   pip install requests
+   curl https://mise.run | sh
+   ```
+   
+   For more installation options, visit: https://mise.jdx.dev/installing-mise.html
+
+3. **Restart your terminal** (close it and open a new one)
+
+4. **Navigate to this project folder** in your terminal:
+   ```bash
+   cd path/to/famly-archiver
+   ```
+   (Replace `path/to/famly-archiver` with the actual path where you downloaded this project)
+
+5. **Install the project dependencies:**
+   ```bash
+   mise install
    ```
 
-2. Run the archiver:
+### Step 2: Capture Your Famly Feed Data
+
+**You need to capture your feed data from the Famly website first.**
+
+1. **Open your web browser** (Firefox or Chrome work best)
+
+2. **Go to the Famly website:** Type `app.famly.co` in the address bar and press Enter
+
+3. **Log in** to your Famly account with your username and password
+
+4. **Open the Developer Console:**
+   - **On Mac:** Press `Cmd + Option + I`
+   - **On Windows/Linux:** Press `F12` or `Ctrl + Shift + I`
+   - **Alternative:** Right-click anywhere on the page and select "Inspect" or "Inspect Element"
+
+5. **Find the Console tab:**
+   - You'll see several tabs like "Elements", "Console", "Network", etc.
+   - Click on the **"Console"** tab
+
+6. **Load the capture script:**
+   - Open the file called `famly_capture.js` (in the same folder as this README)
+   - Copy ALL the text from that file (`Ctrl+A` to select all, then `Ctrl+C` to copy)
+   - Go back to your browser console
+   - Click in the console area (where it says something like `>`)
+   - Paste the code (`Ctrl+V`) and press Enter
+
+7. **Start capturing:**
+   - Type this command in the console: `famlyCapture.start()`
+   - Press Enter
+   - You should see a green message saying capture has started
+
+8. **Scroll through your entire feed:**
+   - **Important:** Scroll slowly through your ENTIRE feed from newest to oldest
+   - Go all the way back to your child's first posts
+   - The script captures data as the website loads it
+   - You'll see messages in the console showing what's being captured
+
+9. **Stop capturing:**
+   - When you've scrolled through everything, type: `famlyCapture.stop()`
+   - Press Enter
+
+10. **Download your data:**
+    - Type: `famlyCapture.download()`
+    - Press Enter
+    - A file will download (something like `famly_feed_2025-08-29.json`)
+    - **Remember where this file is saved!**
+
+### Step 3: Create Your Archive
+
+**Now we'll turn your captured data into a beautiful offline archive.**
+
+1. **Go back to your terminal** (the black window with text)
+
+2. **Make sure you're in the right folder:**
    ```bash
-   python famly_archiver.py your_downloaded_feed.json
+   cd path/to/famly-archiver
    ```
 
-3. Open the generated `famly_archive/index.html` in your browser
+3. **Run the archiver:**
+   ```bash
+   mise archive path/to/your/downloaded/famly_feed_file.json
+   ```
+   
+   **Replace `path/to/your/downloaded/famly_feed_file.json` with the actual path to the file you downloaded.**
+   
+   **Example:** If your file is in your Downloads folder and called `famly_feed_2025-08-29.json`, you might type:
+   ```bash
+   mise archive ~/Downloads/famly_feed_2025-08-29.json
+   ```
+
+4. **Wait for it to finish:**
+   - The tool will download all your photos (this might take a while!)
+   - You'll see progress messages showing what's happening
+   - When it's done, you'll see a success message with the location of your archive
+
+5. **Open your archive:**
+   - The tool will create a folder like `famly_archive_2025-08-29`
+   - Inside that folder, open `index.html` in your web browser
+   - **This is your complete offline archive!**
 
 ## What You Get
 
-- **Static HTML file** with all your posts, photos, and metadata
-- **Downloaded images** in full resolution
-- **Preserved data**: dates, senders, receivers, likes, comments
-- **Offline viewing** - no internet required once created
+Your archive will include:
+- **Beautiful HTML website** that looks just like Famly but works offline
+- **All your photos** downloaded in full resolution
+- **All posts and observations** with original text and formatting
+- **Development area tags** and learning assessments
+- **Likes and comments** from teachers and other parents
+- **Complete offline viewing** - no internet required once created
 
-## Files
+## Files in This Project
 
-- `famly_capture.js` - Browser script to capture feed data
-- `famly_archiver.py` - Python script to download images and create HTML archive
-- `README.md` - This file
+- `famly_capture.js` - Browser script to capture feed data from Famly website
+- `famly_downloader.py` - Downloads all images from your feed data
+- `famly_generator.py` - Creates the HTML archive website
+- `famly_archiver.py` - Runs both download and generate steps together
+- `README.md` - This instruction file
 
-## Tips
+## Helpful Tips
 
-- **Scroll slowly** through your feed to ensure all posts load
-- **Check the console** for capture progress with `famlyCapture.status()`
-- **Multiple sessions** - You can run the capture multiple times and the script will deduplicate
-- **Large feeds** - The archiver handles large feeds but may take time to download all images
+- **Scroll slowly** through your feed to make sure all posts load properly
+- **Check progress** by typing `famlyCapture.status()` in the browser console
+- **Multiple sessions** - You can run the capture multiple times; the script removes duplicates
+- **Large feeds** - If you have lots of photos, downloading might take 10-30 minutes
+- **Save everything** - The tool captures posts, observations, photos, and even development assessments
 
 ## Troubleshooting
 
-- If images fail to download, check your internet connection
-- If the browser script doesn't work, make sure you're on `app.famly.co`
-- For large feeds, the download may take several minutes
+**"The script isn't working"**
+- Make sure you're on `app.famly.co` (not a different Famly URL)
+- Try refreshing the page and running the script again
+- Check that you pasted the entire `famly_capture.js` file
 
-## Privacy
+**"Images aren't downloading"**
+- Check your internet connection
+- Some very old images might have expired links (this is normal)
+- The script will skip broken images and continue with the rest
 
-This tool runs entirely locally - no data is sent to external servers except to download the images from Famly's CDN.
+**"I can't find my downloaded file"**
+- Check your browser's Downloads folder
+- The file will be named something like `famly_feed_2025-08-29.json`
+
+**"The terminal commands don't work"**
+- Make sure you're in the right folder (`cd path/to/famly-archiver`)
+- Try the alternative method without mise (see above)
+- On Windows, you might need to use `python` instead of `python3`
+
+**"I'm not comfortable with the terminal"**
+- Ask a tech-savvy friend or family member to help
+- The browser part (Step 2) is the most important - you can always get help with the terminal part later
+
+## Privacy & Security
+
+- **Everything runs on your computer** - no data is sent to external servers
+- **Only downloads from Famly** - the tool only contacts Famly's servers to download your own photos
+- **No account access** - the tool doesn't store or transmit your login information
+- **Your data stays yours** - all files are saved locally on your computer
+
+## Need Help?
+
+If you get stuck:
+1. **Read the error messages** - they often tell you exactly what's wrong
+2. **Try the alternative method** without mise if the main method doesn't work
+3. **Ask for help** - find someone comfortable with computers to assist you
+4. **Take your time** - there's no rush, and you can always try again
+
+Remember: The most important step is capturing your data from the Famly website (Step 2). Once you have that JSON file downloaded, you can always get help with the rest later!
