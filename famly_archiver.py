@@ -12,10 +12,22 @@ from urllib.parse import urlparse
 from datetime import datetime
 import html
 from pathlib import Path
+import re
 
 class FamlyArchiver:
-    def __init__(self, json_file, output_dir="famly_archive"):
+    def __init__(self, json_file, output_dir=None):
         self.json_file = json_file
+        
+        # Extract timestamp from filename if not provided
+        if output_dir is None:
+            # Look for pattern like famly_feed_2025-08-29_20h25m.json
+            match = re.search(r'famly_feed_(\d{4}-\d{2}-\d{2}_\d{2}h\d{2}m)', json_file)
+            if match:
+                timestamp = match.group(1)
+                output_dir = f"famly_archive_{timestamp}"
+            else:
+                output_dir = "famly_archive"
+        
         self.output_dir = Path(output_dir)
         self.images_dir = self.output_dir / "images"
         
