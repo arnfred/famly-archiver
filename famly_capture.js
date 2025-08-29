@@ -18,7 +18,7 @@
         };
         
         xhr.send = function(...args) {
-            if (this._url && this._url.includes('/api/feed/feed/feed')) {
+            if (this._url && this._url.includes('/api/feed')) {
                 const originalOnLoad = this.onload;
                 this.onload = function() {
                     if (originalOnLoad) originalOnLoad.apply(this, arguments);
