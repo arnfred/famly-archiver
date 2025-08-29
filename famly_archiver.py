@@ -263,6 +263,33 @@ class FamlyArchiver:
             color: #666;
             font-size: 14px;
         }}
+        .observation {{
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }}
+        .observation h4 {{
+            margin: 0 0 12px 0;
+            color: #007bff;
+        }}
+        .observation-text {{
+            margin: 12px 0;
+            line-height: 1.5;
+        }}
+        .development-areas {{
+            margin: 12px 0;
+        }}
+        .area-tag {{
+            display: inline-block;
+            background: #e9ecef;
+            padding: 4px 8px;
+            margin: 2px 4px 2px 0;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #495057;
+        }}
     </style>
 </head>
 <body>
