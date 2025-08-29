@@ -77,7 +77,8 @@ class FamlyArchiver:
         """Download an observation image from GraphQL format"""
         try:
             secret = image_data['secret']
-            image_url = f"{secret['prefix']}/{secret['key']}"
+            # Construct the full URL with the path and key
+            image_url = f"{secret['prefix']}/{secret['key']}/{secret['path']}"
             
             response = requests.get(image_url, timeout=30)
             response.raise_for_status()
