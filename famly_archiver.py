@@ -38,6 +38,12 @@ class FamlyArchiver:
         # Load feed data
         with open(json_file, 'r') as f:
             self.feed_data = json.load(f)
+        
+        # Create observation lookup dictionary
+        self.observations = {}
+        if 'observations' in self.feed_data:
+            for obs in self.feed_data['observations']:
+                self.observations[obs['id']] = obs
     
     def download_image(self, image_url, image_id):
         """Download an image and return the local filename"""
@@ -65,6 +71,32 @@ class FamlyArchiver:
             
         except Exception as e:
             print(f"Error downloading {image_url}: {e}")
+            return None
+    
+    def download_observation_image(self, image_data):
+        """Download an observation image from GraphQL format"""
+        try:
+            secret = image_data['secret']
+            image_url = f"{secret['prefix']}/{secret['key']}"
+            
+            response = requests.get(image_url, timeout=30)
+            response.raise_for_status()
+            
+            # Get file extension from path
+            path_parts = secret['path'].split('.')
+            ext = path_parts[-1] if len(path_parts) > 1 else 'jpg'
+            
+            filename = f"{image_data['id']}.{ext}"
+            filepath = self.images_dir / filename
+            
+            with open(filepath, 'wb') as f:
+                f.write(response.content)
+            
+            print(f"Downloaded observation image: {filename}")
+            return filename
+            
+        except Exception as e:
+            print(f"Error downloading observation image: {e}")
             return None
     
     def format_date(self, date_str):
@@ -102,6 +134,14 @@ class FamlyArchiver:
                             'tags': image.get('tags', [])
                         })
         
+        # Check if this is an observation embed
+        observation_data = None
+        embed = item.get('embed')
+        if embed and embed.get('type') == 'Observation':
+            observation_id = embed.get('observationId')
+            if observation_id and hasattr(self, 'observations'):
+                observation_data = self.observations.get(observation_id)
+        
         return {
             'feedItemId': item.get('feedItemId', ''),
             'sender': item.get('sender', {}),
@@ -111,7 +151,9 @@ class FamlyArchiver:
             'createdDate': item.get('createdDate', ''),
             'images': local_images,
             'likes': item.get('likes', []),
-            'comments': item.get('comments', [])
+            'comments': item.get('comments', []),
+            'embed': embed,
+            'observation': observation_data
         }
     
     def generate_html(self, processed_items):
@@ -270,6 +312,7 @@ class FamlyArchiver:
             if post_body:
                 html_content += f'        <div class="post-body">{post_body}</div>\n'
             
+            # Handle regular images
             if item['images']:
                 html_content += '        <div class="images-grid">\n'
                 for image in item['images']:
@@ -277,6 +320,48 @@ class FamlyArchiver:
                 <img src="images/{image['filename']}" alt="Photo" loading="lazy">
             </div>
 """
+                html_content += '        </div>\n'
+            
+            # Handle observation content
+            if item.get('observation'):
+                obs = item['observation']
+                html_content += '        <div class="observation">\n'
+                html_content += '            <h4>📝 Observation</h4>\n'
+                
+                # Observation author
+                if obs.get('createdBy'):
+                    author = obs['createdBy']['name']['fullName']
+                    html_content += f'            <p><strong>Observer:</strong> {html.escape(author)}</p>\n'
+                
+                # Observation remark
+                if obs.get('remark'):
+                    remark = obs['remark']
+                    remark_body = remark.get('richTextBody', remark.get('body', ''))
+                    if remark_body:
+                        html_content += f'            <div class="observation-text">{remark_body}</div>\n'
+                    
+                    # Development areas
+                    if remark.get('areas'):
+                        html_content += '            <div class="development-areas">\n'
+                        html_content += '                <strong>Development Areas:</strong>\n'
+                        for area in remark['areas']:
+                            area_info = area['area']
+                            refinement = area.get('refinement', '')
+                            html_content += f'                <span class="area-tag">{html.escape(area_info["title"])} ({refinement})</span>\n'
+                        html_content += '            </div>\n'
+                
+                # Observation images
+                if obs.get('images'):
+                    html_content += '            <div class="images-grid">\n'
+                    for obs_image in obs['images']:
+                        local_filename = self.download_observation_image(obs_image)
+                        if local_filename:
+                            html_content += f"""                <div class="image-container">
+                    <img src="images/{local_filename}" alt="Observation Photo" loading="lazy">
+                </div>
+"""
+                    html_content += '            </div>\n'
+                
                 html_content += '        </div>\n'
             
             if item['likes']:

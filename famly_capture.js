@@ -68,7 +68,8 @@
                             capturedData.push({
                                 url: url.toString(),
                                 timestamp: new Date().toISOString(),
-                                data: data
+                                data: data,
+                                type: 'feed'
                             });
                         }
                     }).catch(e => {
@@ -77,6 +78,40 @@
                 }
                 return response;
             });
+        }
+        
+        // Capture GraphQL observation requests
+        if (url && url.toString().includes('/graphql') && options && options.body) {
+            try {
+                const body = JSON.parse(options.body);
+                if (body.operationName === 'ObservationsByIds') {
+                    console.log('🎯 Intercepting GraphQL observation call:', url);
+                    
+                    return originalFetch.apply(this, arguments).then(response => {
+                        if (response.ok && isCapturing) {
+                            const clonedResponse = response.clone();
+                            clonedResponse.json().then(data => {
+                                if (data.data && data.data.childDevelopment && data.data.childDevelopment.observations) {
+                                    const observations = data.data.childDevelopment.observations.results;
+                                    console.log(`✅ Captured ${observations.length} observations from GraphQL: ${url}`);
+                                    capturedData.push({
+                                        url: url.toString(),
+                                        timestamp: new Date().toISOString(),
+                                        data: data,
+                                        type: 'observations',
+                                        requestBody: body
+                                    });
+                                }
+                            }).catch(e => {
+                                console.error('❌ Error parsing GraphQL observation response:', e);
+                            });
+                        }
+                        return response;
+                    });
+                }
+            } catch (e) {
+                // Not JSON or not the right format, continue normally
+            }
         }
         
         return originalFetch.apply(this, arguments);
@@ -134,11 +169,16 @@
                 return;
             }
             
-            // Merge all feed items
+            // Separate feed items and observations
             const allFeedItems = [];
+            const allObservations = [];
+            
             capturedData.forEach(response => {
-                if (response.data.feedItems) {
+                if (response.type === 'feed' && response.data.feedItems) {
                     allFeedItems.push(...response.data.feedItems);
+                } else if (response.type === 'observations' && response.data.data) {
+                    const observations = response.data.data.childDevelopment.observations.results;
+                    allObservations.push(...observations);
                 }
             });
             
@@ -152,10 +192,22 @@
                 }
             });
             
+            // Remove duplicate observations based on id
+            const uniqueObservations = [];
+            const seenObsIds = new Set();
+            allObservations.forEach(obs => {
+                if (!seenObsIds.has(obs.id)) {
+                    seenObsIds.add(obs.id);
+                    uniqueObservations.push(obs);
+                }
+            });
+            
             const exportData = {
                 exportDate: new Date().toISOString(),
                 totalItems: uniqueItems.length,
-                feedItems: uniqueItems
+                totalObservations: uniqueObservations.length,
+                feedItems: uniqueItems,
+                observations: uniqueObservations
             };
             
             const blob = new Blob([JSON.stringify(exportData, null, 2)], {
@@ -170,7 +222,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            console.log(`📥 Downloaded ${uniqueItems.length} unique feed items to ${a.download}`);
+            console.log(`📥 Downloaded ${uniqueItems.length} unique feed items and ${uniqueObservations.length} observations to ${a.download}`);
         }
     };
     
