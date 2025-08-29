@@ -236,8 +236,10 @@ class FamlyArchiver:
             
             # Use richTextBody if available, otherwise use body
             post_body = item.get('richTextBody', item.get('body', ''))
-            if not post_body.startswith('<'):
+            if post_body and not post_body.startswith('<'):
                 post_body = html.escape(post_body).replace('\n', '<br>')
+            elif not post_body:
+                post_body = ''
             
             html_content += f"""
     <div class="feed-item">
