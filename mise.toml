@@ -19,7 +19,15 @@ description = "Run the famly archiver"
 
 [tasks.archive]
 run = "uv run python famly_archiver.py"
-description = "Scrape and archive Famly feed data"
+description = "Complete archive workflow (download + generate)"
+
+[tasks.download]
+run = "uv run python famly_downloader.py"
+description = "Download images from Famly feed data"
+
+[tasks.generate]
+run = "uv run python famly_generator.py"
+description = "Generate HTML archive from metadata"
 
 [tasks.format]
 run = "uv run black ."
