@@ -18,7 +18,9 @@
         };
         
         xhr.send = function(...args) {
+            console.log('XHR Send:', this._url);
             if (this._url && this._url.includes('/api/feed')) {
+                console.log('Intercepting feed API call:', this._url);
                 const originalOnLoad = this.onload;
                 this.onload = function() {
                     if (originalOnLoad) originalOnLoad.apply(this, arguments);
