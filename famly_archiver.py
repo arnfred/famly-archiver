@@ -77,8 +77,16 @@ class FamlyArchiver:
         """Download an observation image from GraphQL format"""
         try:
             secret = image_data['secret']
-            # Construct the full URL with the path and key
-            image_url = f"{secret['prefix']}/{secret['key']}/{secret['path']}"
+            # Use the exact URL format: prefix/key/WIDTHxHEIGHT/path?expires=EXPIRES
+            width = image_data.get('width', 520)
+            height = image_data.get('height', 1040)
+            
+            # Build URL matching the working format
+            image_url = f"{secret['prefix']}/{secret['key']}/{width}x{height}/{secret['path']}"
+            if secret.get('expires'):
+                # URL encode the expires parameter properly
+                expires = secret['expires'].replace(':', '%3A').replace('+', '%2B')
+                image_url += f"?expires={expires}"
             
             response = requests.get(image_url, timeout=30)
             response.raise_for_status()
