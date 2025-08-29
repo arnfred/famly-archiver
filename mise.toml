@@ -17,7 +17,7 @@ description = "Install development dependencies"
 run = "uv run python famly_archiver.py"
 description = "Run the famly archiver"
 
-[tasks.scrape]
+[tasks.archive]
 run = "uv run python famly_archiver.py"
 description = "Scrape and archive Famly feed data"
 
