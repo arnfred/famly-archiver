@@ -1,0 +1,34 @@
+[tools]
+python = "3.11"
+uv = "latest"
+
+[env]
+UV_PYTHON_PREFERENCE = "only-managed"
+
+[tasks.install]
+run = "uv sync"
+description = "Install dependencies"
+
+[tasks.dev]
+run = "uv sync --dev"
+description = "Install development dependencies"
+
+[tasks.run]
+run = "uv run python famly_archiver.py"
+description = "Run the famly archiver"
+
+[tasks.format]
+run = "uv run black ."
+description = "Format code with black"
+
+[tasks.lint]
+run = "uv run ruff check ."
+description = "Lint code with ruff"
+
+[tasks.test]
+run = "uv run pytest"
+description = "Run tests"
+
+[tasks.check]
+depends = ["format", "lint", "test"]
+description = "Run all checks"

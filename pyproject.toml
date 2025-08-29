@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "famly-archiver"
+version = "0.1.0"
+description = "A tool to download and archive your Famly daycare photos and posts"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "requests>=2.25.0",
+]
+
+[project.scripts]
+famly-archiver = "famly_archiver:main"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "ruff>=0.1.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = []
+
+[tool.ruff.isort]
+known-first-party = ["famly_archiver"]
