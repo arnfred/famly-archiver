@@ -64,9 +64,14 @@ class FamlyArchiver:
         except:
             return date_str
     
-    def process_feed_item(self, item):
+    def process_feed_item(self, item, current_index=None, total_items=None):
         """Process a single feed item and download its images"""
-        print(f"Processing feed item: {item.get('feedItemId', 'unknown')}")
+        progress_info = ""
+        if current_index is not None and total_items is not None:
+            percentage = (current_index / total_items) * 100
+            progress_info = f" [{current_index}/{total_items} - {percentage:.1f}%]"
+        
+        print(f"Processing feed item: {item.get('feedItemId', 'unknown')}{progress_info}")
         
         # Download images
         local_images = []
@@ -278,24 +283,31 @@ class FamlyArchiver:
     
     def create_archive(self):
         """Create the complete archive"""
-        print(f"Creating archive from {self.json_file}")
-        print(f"Output directory: {self.output_dir}")
+        print(f"🚀 Creating archive from {self.json_file}")
+        print(f"📁 Output directory: {self.output_dir}")
         
         feed_items = self.feed_data.get('feedItems', [])
-        print(f"Found {len(feed_items)} feed items")
+        print(f"📸 Found {len(feed_items)} feed items to archive")
         
         # Sort by date (newest first)
         feed_items.sort(key=lambda x: x.get('createdDate', ''), reverse=True)
         
         # Process each feed item
         processed_items = []
+        total_items = len(feed_items)
+        print(f"\n📋 Starting to process {total_items} feed items...")
+        
         for i, item in enumerate(feed_items, 1):
-            print(f"Processing item {i}/{len(feed_items)}")
-            processed_item = self.process_feed_item(item)
+            processed_item = self.process_feed_item(item, i, total_items)
             processed_items.append(processed_item)
+            
+            # Show progress every 10 items or at the end
+            if i % 10 == 0 or i == total_items:
+                percentage = (i / total_items) * 100
+                print(f"📊 Progress: {i}/{total_items} items processed ({percentage:.1f}%)")
         
         # Generate HTML
-        print("Generating HTML...")
+        print(f"\n🎨 Generating HTML archive...")
         html_content = self.generate_html(processed_items)
         
         # Write HTML file
@@ -303,10 +315,11 @@ class FamlyArchiver:
         with open(html_file, 'w', encoding='utf-8') as f:
             f.write(html_content)
         
+        total_photos = sum(len(item['images']) for item in processed_items)
         print(f"\n✅ Archive created successfully!")
         print(f"📁 Location: {self.output_dir.absolute()}")
         print(f"🌐 Open: {html_file.absolute()}")
-        print(f"📊 {len(processed_items)} posts, {sum(len(item['images']) for item in processed_items)} photos")
+        print(f"📊 Final stats: {len(processed_items)} posts, {total_photos} photos archived")
 
 def main():
     if len(sys.argv) != 2:
