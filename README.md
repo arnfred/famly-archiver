@@ -1,6 +1,6 @@
 # Famly Archiver
 
-A tool to help download and archive Famly daycare photos and posts. It downloads all photos, posts, observations, and composes an offline HTML archive that links against photos on disk.
+A tool to help download and archive photos and posts from the daycare platform Famly. It downloads all photos, posts, observations, and composes an offline HTML archive that links against photos on disk.
 
 ## How to Use
 
@@ -17,7 +17,7 @@ The process of downloading photos is a bit manual, I'm afraid.
 
 **Part 2** - Download Images:
 
-If you already have [mise])(https://mise.jdx.dev/) set up, clone this directory, copy the feed file you've downloaded from firefox and run `mise run download <name of feed file.json>.
+If you already have [mise](https://mise.jdx.dev/) set up, clone this directory, copy the feed file you've downloaded from firefox and run `mise run download <name of feed file.json>`.
 If not, visit: https://mise.jdx.dev/installing-mise.html
 
 Once all images have been downloaded, run `mise run generate famly_archive/metadata.json` to create the html file in `./famly_archive`.
