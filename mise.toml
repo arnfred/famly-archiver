@@ -30,7 +30,7 @@ description = "Download images from Famly feed data"
 run = "uv run python famly_generator.py"
 description = "Generate HTML archive from metadata"
 
-[tasks.extract-posts]
+[tasks."extract-posts"]
 run = "uv run python famly_extract_posts.py"
 description = "Extract post images to separate directory"
 
